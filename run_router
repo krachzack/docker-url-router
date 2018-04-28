@@ -1,0 +1,79 @@
+#!/bin/bash
+
+function generate_vhosts {
+    if [ -z "$SERVER_NAME" ]
+    then
+        SERVER_NAME="localhost"
+    fi
+
+    echo "ServerName $SERVER_NAME"
+
+    echo "<VirtualHost *:80>"
+    echo "    ServerAdmin webmaster@$SERVER_NAME"
+    echo "    DocumentRoot /var/www/html"
+    echo ""
+    echo "    ErrorLog ${APACHE_LOG_DIR}/error.log"
+    echo "    CustomLog ${APACHE_LOG_DIR}/access.log combined"
+
+    MAPPINGS=(${URL_MAPPINGS// / })
+    for MAPPING in "${MAPPINGS[@]}"; do
+        MAPPING_PARTS=(${MAPPING//=>/ })
+
+        URL_PATH=${MAPPING_PARTS[0]}
+        PROXY_URL=${MAPPING_PARTS[1]}
+
+        echo Apache configured to redirect URL path $URL_PATH to $PROXY_URL >&2
+
+        echo ""
+        echo "    ProxyPass $URL_PATH $PROXY_URL"
+        echo "    ProxyPassReverse $URL_PATH $PROXY_URL"
+    done
+
+    echo "</VirtualHost>"
+    echo ""
+
+    if [ -e /etc/apache2/ssl/cert ]
+    then
+
+        echo "Listen 443"
+        echo ""
+        echo "<VirtualHost *:443>"
+        echo "    ServerAdmin webmaster@$SERVER_NAME"
+        echo "    DocumentRoot /var/www/html"
+        echo ""
+        echo "    ErrorLog ${APACHE_LOG_DIR}/error.log"
+        echo "    CustomLog ${APACHE_LOG_DIR}/access.log combined"
+
+        MAPPINGS=(${URL_MAPPINGS// / })
+        for MAPPING in "${MAPPINGS[@]}"; do
+            MAPPING_PARTS=(${MAPPING//=>/ })
+
+            URL_PATH=${MAPPING_PARTS[0]}
+            PROXY_URL=${MAPPING_PARTS[1]}
+
+            echo Apache configured to redirect URL path $URL_PATH to $PROXY_URL >&2
+
+            echo "    ServerName $SERVER_NAME"
+            echo "    SSLEngine on"
+            echo "    DocumentRoot /var/www/html"
+            echo "    SSLCertificateFile \"/etc/apache2/ssl/cert\""
+            echo "    SSLCertificateKeyFile \"/etc/apache2/ssl/key\""
+
+            echo ""
+            echo "    ProxyPass $URL_PATH $PROXY_URL"
+            echo "    ProxyPassReverse $URL_PATH $PROXY_URL"
+        done
+
+        echo "</VirtualHost>"
+    fi
+}
+
+while :
+    do
+        echo "Writing httpd-vhosts.conf for routing..."
+
+        generate_vhosts 1>/usr/local/apache2/conf/extra/httpd-vhosts.conf
+
+        echo "Starting Apache..."
+        httpd-foreground
+done
