@@ -1,5 +1,5 @@
 # docker-url-router
-Simple URL router for docker based on httpd image
+Simple URL router for docker based on the official httpd image.
 
 This image extends `httpd:2.4-alpine` with a small script that automatically generates a vhosts configuration for apache that redirects subpaths to other images based on environment variables present at startup.
 

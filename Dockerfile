@@ -1,14 +1,6 @@
 FROM httpd:2.4-alpine
 MAINTAINER Philipp Stadler <hello@phstadler.com>
 
-#ADD policy-rc.d /usr/sbin/policy-rc.d
-
-#RUN apt-get update && \
-#    apt-get install -y \
-#        apache2
-
-# EXPOSE 80
-
 RUN mkdir -p /var/www/html/
 
 RUN /bin/sed -i '/LoadModule ssl_module modules\/mod_ssl.so/s/^#//g' /usr/local/apache2/conf/httpd.conf && \
