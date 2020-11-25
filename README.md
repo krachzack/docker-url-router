@@ -20,6 +20,7 @@ It's neat for quickly setting up a docker-compose where one front server delegat
         ports:
           - "80:80"
           - "443:443"
+          - "48888:48888"
         volumes:
           # Optional, if files are present, HTTPS is enabled
           - "./ssl/kreit.localhost.crt:/etc/apache2/ssl/cert"
@@ -29,3 +30,5 @@ It's neat for quickly setting up a docker-compose where one front server delegat
           SERVER_NAME: "kreit.localhost"
           # Map /fileadmin/bundles/ and subdirectories to assets container, everything else to web container
           URL_MAPPINGS: "/fileadmin/bundles/=>http://assets:8080/fileadmin/bundles/  /=>http://web:9090/"
+          # Also use the same mappings on port 48888
+          EXTRA_PORTS: 48888

@@ -1,6 +1,9 @@
 FROM httpd:2.4-alpine
 MAINTAINER Philipp Stadler <hello@phstadler.com>
 
+# Install bash, which is required by the vhost script
+RUN apk update && apk upgrade && apk add bash
+
 RUN mkdir -p /var/www/html/
 
 RUN /bin/sed -i '/LoadModule ssl_module modules\/mod_ssl.so/s/^#//g' /usr/local/apache2/conf/httpd.conf && \
@@ -26,8 +29,8 @@ RUN /bin/sed -i '/LoadModule ssl_module modules\/mod_ssl.so/s/^#//g' /usr/local/
     /bin/sed -i '/LoadModule proxy_http2_module modules\/mod_proxy_http2.so/s/^#//g' /usr/local/apache2/conf/httpd.conf && \
     /bin/sed -i '/Include conf\/extra\/httpd-vhosts.conf/s/^#//g' /usr/local/apache2/conf/httpd.conf
 
-
-ADD run_router /bin/run_router
+# Copy the vhost generator script
+COPY ./run_router /usr/bin
 
 # Write config, start apache and restart it when it crashes
-CMD /bin/run_router
+CMD /usr/bin/run_router

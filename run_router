@@ -32,6 +32,32 @@ function generate_vhosts {
     echo "</VirtualHost>"
     echo ""
 
+    for PORT in "${EXTRA_PORTS[@]}"; do
+        echo "<VirtualHost *:$PORT>"
+        echo "    ServerAdmin webmaster@$SERVER_NAME"
+        echo "    DocumentRoot /var/www/html"
+        echo ""
+        echo "    ErrorLog ${APACHE_LOG_DIR}/error.log"
+        echo "    CustomLog ${APACHE_LOG_DIR}/access.log combined"
+
+        MAPPINGS=(${URL_MAPPINGS// / })
+        for MAPPING in "${MAPPINGS[@]}"; do
+            MAPPING_PARTS=(${MAPPING//=>/ })
+
+            URL_PATH=${MAPPING_PARTS[0]}
+            PROXY_URL=${MAPPING_PARTS[1]}
+
+            echo Apache configured on extra port $PORT to redirect URL path $URL_PATH to $PROXY_URL >&2
+
+            echo ""
+            echo "    ProxyPass $URL_PATH $PROXY_URL"
+            echo "    ProxyPassReverse $URL_PATH $PROXY_URL"
+        done
+
+        echo "</VirtualHost>"
+        echo ""
+    done
+
     if [ -e /etc/apache2/ssl/cert ]
     then
 
