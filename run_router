@@ -32,28 +32,28 @@ function generate_vhosts {
     echo "</VirtualHost>"
     echo ""
 
-    if [ ! -z "$EXTRA_PORT" ]
+    if [ -n "$WS_PORT" ]
     then
-        echo "Listen $EXTRA_PORT"
-        echo "<VirtualHost *:$EXTRA_PORT>"
+        echo "Configuring WebSockets vhost on port $WS_PORT" >&2
+        echo "Listen $WS_PORT"
+        echo "<VirtualHost *:$WS_PORT>"
         echo "    ServerAdmin webmaster@$SERVER_NAME"
         echo "    DocumentRoot /var/www/html"
         echo ""
         echo "    ErrorLog ${APACHE_LOG_DIR}/error.log"
         echo "    CustomLog ${APACHE_LOG_DIR}/access.log combined"
 
-        MAPPINGS=(${EXTRA_PORT_URL_MAPPINGS// / })
+        MAPPINGS=(${WS_URL_MAPPINGS// / })
         for MAPPING in "${MAPPINGS[@]}"; do
             MAPPING_PARTS=(${MAPPING//=>/ })
 
             URL_PATH=${MAPPING_PARTS[0]}
             PROXY_URL=${MAPPING_PARTS[1]}
 
-            echo Apache configured on extra port $EXTRA_PORT to redirect URL path $URL_PATH to $PROXY_URL >&2
+            echo "Apache configured for WebScokets on extra port $WS_PORT to redirect URL path $URL_PATH to $PROXY_URL" >&2
 
             echo ""
             echo "    ProxyPass $URL_PATH $PROXY_URL"
-            echo "    ProxyPassReverse $URL_PATH $PROXY_URL"
         done
 
         echo "</VirtualHost>"

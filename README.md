@@ -31,5 +31,5 @@ It's neat for quickly setting up a docker-compose where one front server delegat
           # Map /fileadmin/bundles/ and subdirectories to assets container, everything else to web container
           URL_MAPPINGS: "/fileadmin/bundles/=>http://assets:8080/fileadmin/bundles/  /=>http://web:9090/"
           # Also use the same mappings on port 48888
-          EXTRA_PORT: 48888
-          EXTRA_PORT_URL_MAPPINGS: "/assets/=>http://assets:48888"
+          WS_PORT: 48888
+          WS_URL_MAPPINGS: "/assets/=>ws://assets:48888"
